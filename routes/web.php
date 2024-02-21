@@ -1,7 +1,12 @@
 <?php
 
-use App\Http\Controllers\ConstructorTypesController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\ResourceController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ComponentController;
+use App\Http\Controllers\TypeController;
+use App\Services\RouteService;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,13 +19,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('constructor/index');
+Route::redirect('/', '/components/create');
+
+
+Route::prefix('/types')->controller(TypeController::class)->group(function () {
+    Route::get('/', 'index')->name('type');
+    Route::get('/show', 'show')->name('type.show');
+});
+Route::prefix('/panel')->group(function () {
+    Route::resource('components', ComponentController::class);
+    Route::resource('categories', CategoryController::class);
+    Route::resource('pages', PageController::class);
 });
 
-Route::prefix('/constructor/types')->group(function () {
-    Route::get('/', [ConstructorTypesController::class, 'index'])->name('constructor.types');
-    Route::get('/select', [ConstructorTypesController::class, 'select'])->name('constructor.types.select');
+Route::get(RouteService::buildPath(request()->getPathInfo()), ResourceController::class);
 
-});
 

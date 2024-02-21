@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
-class ConstructorTypesController extends Controller
+class TypeController extends Controller
 {
     private $types = [
         'input',
@@ -13,7 +14,7 @@ class ConstructorTypesController extends Controller
         'file',
     ];
 
-    private $typesPath = 'constructor/types';
+    private $typesPath = 'panel/component/type';
 
     /**
      * Получение списка всех существующих типов
@@ -26,12 +27,14 @@ class ConstructorTypesController extends Controller
         ]);
     }
 
-    public function select(Request $request)
+    public function show(Request $request)
     {
         if (!$request->has('type')) {
             return response('', 400);
         }
 
-        return view("{$this->typesPath}/{$request->type}");
+        $uid = Str::random(15);
+
+        return view("{$this->typesPath}/constructor/{$request->type}", ['uid' => $uid]);
     }
 }
