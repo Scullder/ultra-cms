@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\PageController;
-use App\Http\Controllers\Site\DefaultController;
+use App\Http\Controllers\RenderController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ComponentController;
-use App\Http\Controllers\TypeController;
+use App\Http\Controllers\Panel\CategoryController;
+use App\Http\Controllers\Panel\PageController;
+use App\Http\Controllers\Panel\ComponentController;
+use App\Http\Controllers\Panel\TypeController;
+use App\Http\Controllers\Site\DefaultController;
 use App\Services\RouteService;
 
 /*
@@ -21,18 +22,13 @@ use App\Services\RouteService;
 
 Route::redirect('/', '/components/create');
 
-Route::prefix('/types')->controller(TypeController::class)->group(function () {
-    Route::get('/', 'index')->name('type');
-    Route::get('/show', 'show')->name('type.show');
-});
-
-Route::prefix('/panel')->group(function () {
-    Route::resource('components', ComponentController::class);
+Route::prefix(config('route.panel_path'))->group(function () {
+    Route::get('/categories/select', [CategoryController::class, 'select'])->name('categories.select');
     Route::resource('categories', CategoryController::class);
     Route::resource('pages', PageController::class);
+    Route::resource('components', ComponentController::class);
+    Route::resource('types', TypeController::class);
+    Route::get('/render/selected', [RenderController::class, 'getSelected'])->name('render.selected');
 });
 
 Route::get(RouteService::buildPath(request()->getPathInfo()), DefaultController::class);
-//Route::get('/{category:slug}', DefaultController::class);
-
-

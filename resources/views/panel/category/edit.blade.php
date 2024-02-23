@@ -10,7 +10,7 @@
         <form method="post" action="{{ route('categories.update', ['category' => $category->id]) }}" id="form">
             @csrf
             @method('PUT')            
-            <x-h1>Создание новой категории</x-h1>
+            <x-h1>Редактирование категории</x-h1>
             <x-input label="Название категории" value="{{ old('name', $category->name) }}" name="name"/>
             <x-input label="Slug(Seo-url)" value="{{ old('slug', $category->slug) }}" name="slug"/>
         </form>

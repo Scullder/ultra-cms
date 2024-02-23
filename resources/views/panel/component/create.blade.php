@@ -21,7 +21,7 @@
                     ])
                 @endforeach
             </div>
-            <x-button hx-get="{{ route('type') }}" hx-target="body" hx-swap="beforeend" class="mt-4">Добавить поле</x-button>
+            <x-button hx-get="{{ route('types.index') }}" hx-target="body" hx-swap="beforeend" class="mt-4">Добавить поле</x-button>
         </form>
     </div>
     {{-- @foreach ($errors->all() as $key => $error) 

@@ -9,14 +9,20 @@ class DefaultController extends Controller
 {
     public function __invoke(RouteService $routeService, ...$args)
     {
-        $models = $routeService->getModelsFromSlugs($args);
+        $data = $routeService->getModelsFromSlugs($args);
+        $data['resource'] = $data['category'] ?? $data['page'] ?? null;
 
-        if (!$routeService->validateModelsHierarchy($models)) {
+        if (!$routeService->validateModelsHierarchy($data) || !$data['resource']) {
             abort(404);
         }
 
-        //dd($models);
+        $view = $data['resource']->view ?? config('route.default_view');
 
-        return view('site/default', $models);
+        if (isset($data['resource']->action) && class_exists($data['resource']->action)) {
+            // Делегируем обработку запроса
+            return (new $data['resource']->action)($data);
+        }
+
+        return view($view, $data);
     }
 }

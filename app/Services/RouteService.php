@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class RouteService
 {
-    public static function buildPath(string $inputPath)
+    public static function buildPath(string $inputPath): string
     {
         $routePath = [];
         $duplicates = [];
@@ -15,6 +15,10 @@ class RouteService
         foreach (explode('/', $inputPath) as $part) {
             if (!$part) {
                 continue;
+            }
+
+            if ($part == config('route.panel_path')) {
+                return '';
             }
 
             $slug = Slug::where('slug', $part)->first();
@@ -37,7 +41,7 @@ class RouteService
 
     public static function getPathAction(string $inputPath)
     {
-
+        
     }
 
     public function getPathModels(string $path)
@@ -47,28 +51,30 @@ class RouteService
 
     public function getModelsFromSlugs(array $slugs)
     {
-        $models = [];
-        $duplicates = [];
+        $records = [];
 
         foreach ($slugs as $modelSlug) {
             $slug = Slug::where('slug', $modelSlug)->first();
             
             if (!$slug) {
-                throw new \Exception('Параметра ' . $modelSlug . ' нет в базе данных!');
+                throw new \Exception("Параметр ссылки {$modelSlug} отсутствует в базе данных!");
             }
             
             $modelName = (string) Str::of($slug->model)->afterLast('\\')->lower();
-            
-            $duplicates[$modelName] = isset($duplicates[$modelName])
-                ? $duplicates[$modelName] + 1
-                : 1;
+            $record = call_user_func([$slug->model, 'find'], $slug->model_id);
 
-            $modelKey = Str::camel(Str::repeat('sub_', $duplicates[$modelName] - 1) . $modelName);
+            if (!$record) {
+                throw new \Exception("Ресурс для записи {$modelName} {$slug->model_id} не найден!");
+            }
 
-            $models[$modelKey] = call_user_func([$slug->model, 'find'], $slug->model_id);
+            if (isset($records[$modelName])) {
+                $records["{$modelName}_path"][] = $record;
+            } else {
+                $records[$modelName] = $record;
+            }
         }
 
-        return $models;
+        return $records;
     }
 
     public function validatePathHierarchy(string $path)

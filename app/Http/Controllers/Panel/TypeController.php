@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Panel;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -27,7 +27,7 @@ class TypeController extends Controller
         ]);
     }
 
-    public function show(Request $request)
+    public function create(Request $request)
     {
         if (!$request->has('type')) {
             return response('', 400);

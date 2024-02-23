@@ -2,7 +2,7 @@
     <x-h2>Выбор типа</x-h2>
     <form 
         class="m-0 flex flex-col items-center gap-4" 
-        hx-get="{{ route('type.show') }}"
+        hx-get="{{ route('types.create') }}"
         hx-target="#component-types" 
         hx-swap="beforeend"
     >

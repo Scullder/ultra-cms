@@ -10,10 +10,11 @@ class Page extends Model
     protected $fillable = [
         'name',
         'slug',
+        'categories',
     ];
 
-    public function categories()
+    /* public function categories()
     {
         return $this->belongsToMany(Category::class);
-    }
+    } */
 }

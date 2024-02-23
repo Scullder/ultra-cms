@@ -12,8 +12,8 @@ class Category extends Model
         'slug',
     ];
 
-    public function pages()
+   /*  public function pages()
     {
         return $this->belongsToMany(Page::class);
-    }
+    } */
 }
