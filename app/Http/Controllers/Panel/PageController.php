@@ -19,6 +19,24 @@ class PageController extends Controller
         //
     }
 
+    public function select(Request $request)
+    {
+        //dd($request->all());
+        $pages = Page::all();
+        $response = '';
+
+        foreach ($pages as $page) {
+            $response .= view('components/select/option', [
+                'selectSelectedSelector' => $request->selectSelectedSelector ?? '',
+                'selectOptionsName' => $request->selectOptionsName ?? 'pages',
+                'value' => $page->id,
+                'label' => $page->name,
+            ]);
+        }
+
+        return $response;
+    }
+
     /**
      * Show the form for creating a new resource.
      */

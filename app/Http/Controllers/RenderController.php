@@ -11,7 +11,7 @@ class RenderController extends Controller
     {
         //dd($request->all());
         return view('components/select/selected', $request->only([
-            'name', 
+            'selectOptionName',
             'value',
             'label',
         ]));

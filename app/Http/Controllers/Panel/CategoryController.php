@@ -20,36 +20,20 @@ class CategoryController extends Controller
 
     public function select(Request $request)
     {
-        //dd($request->all());
         $categories = Category::all();
         $response = '';
 
         foreach ($categories as $category) {
             $response .= view('components/select/option', [
-                'name' => 'categories',
+                'selectSelectedSelector' => $request->selectSelectedSelector ?? '',
+                'selectOptionsName' => $request->selectOptionsName ?? 'categories',
                 'value' => $category->id,
                 'label' => $category->name,
-                'selectedSelector' => '#categories-selected',
             ]);
         }
 
         return $response;
     }
-
-    /* public function options(Request $request)
-    {
-        $categories = Category::all();
-
-        if ($request->has('categories')) {
-            foreach ($categories as $category) {
-                if (in_array($category->id, $request->categories)) {
-                    $category->selected = true;
-                }
-            }
-        }
-
-        return view('panel/category/options', compact('categories'));
-    } */
 
     /**
      * Show the form for creating a new resource.

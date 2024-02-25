@@ -24,6 +24,8 @@ Route::redirect('/', '/components/create');
 
 Route::prefix(config('route.panel_path'))->group(function () {
     Route::get('/categories/select', [CategoryController::class, 'select'])->name('categories.select');
+    Route::get('/pages/select', [PageController::class, 'select'])->name('pages.select');
+    
     Route::resource('categories', CategoryController::class);
     Route::resource('pages', PageController::class);
     Route::resource('components', ComponentController::class);

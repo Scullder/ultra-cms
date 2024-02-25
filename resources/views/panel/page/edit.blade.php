@@ -14,9 +14,7 @@
             <x-input label="Название страницы" value="{{ old('name', $page->name) }}" name="name"/>
             <x-input label="Slug(Seo-url)" value="{{ old('slug', $page->slug) }}" name="slug"/>
             <x-select.select source="{{ route('categories.select') }}" label="Категории" code="categories">
-                {{-- @foreach ($page->categories as $category) --}}
-                
-                @foreach ($categories as $category)
+                @foreach ($page->categories as $category)
                     <x-select.selected name="categories" value="{{ $category->id }}" label="{{ $category->name }}" />
                 @endforeach
             </x-select.select>

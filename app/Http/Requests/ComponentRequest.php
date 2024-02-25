@@ -2,15 +2,21 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ComponentRequest extends FormRequest
 {
     private $rules = [
         'input' => [
-            'name' => 'required',
-            //'required' => 'nullable',
-            //'multiple' => 'nullable',
+            'label' => 'required',
+            'type' => 'required',
+            'default' => 'nullable',
+        ],
+        'text' => [
+            'label' => 'required',
+            'type' => 'required',
+            'default' => 'nullable',
         ],
     ];
 
@@ -22,13 +28,44 @@ class ComponentRequest extends FormRequest
         return true;
     }
 
-    private function generateRules($type, $name): array
+    /**
+     * Поля компонента могут быть разными, поэтому создаём правила валидации на лету для каждого поля
+     */
+    private function generateRule($type, $index): array
     {
         $rules = $this->rules[$type] ?? [];
+        $rules["fields.{$index}.code"] = 'required|unique:fields,code,' . $this->fields[$index]['code'];
 
         foreach ($rules as $key => $rule) {
-            $rules["fields.{$name}.{$key}"] = $rule;
+            $rules["fields.{$index}.{$key}"] = $rule;
             unset($rules[$key]);
+        }
+
+        return $rules;
+    }
+
+    private function genrateFieldsRules(): array
+    {
+        $rules = [];
+        $codeDuplicates = [];
+
+        foreach (request()->fields as $index => $field) {
+            $rule = $this->rules[$field['type']] ?? [];
+
+            foreach ($rule as $key => $item) {
+                $rule["fields.{$index}.{$key}"] = $item;
+                unset($rule[$key]);
+            }
+
+            $rule["fields.{$index}.code"] = 'required|unique:fields,code';
+            
+            // Предотвращение повторяющихся кодов внутри запроса
+            if (!in_array($field['code'], $codeDuplicates)) {
+                $rule["fields.{$index}.code"] .= ',' . $index . ',_id';
+                $codeDuplicates[] = $field['code'];
+            }
+
+            $rules = array_merge($rules, $rule);
         }
 
         return $rules;
@@ -41,26 +78,32 @@ class ComponentRequest extends FormRequest
      */
     public function rules(): array
     {
-        //dd(request()->fields);
-
         $rules = [
-            'fields' => 'required',
             'name' => 'required',
             'code' => 'required',
+            'categories_pages' => 'nullable|array',
+            'categories' => 'nullable|array',
+            'pages' => 'nullable|array',
+            'global' => 'nullable',
         ];
 
         if (request()->has('fields')) {
-            foreach (request()->fields as $key => $field) {
-                $rules = array_merge($rules, $this->generateRules($field['type'], $key));
-            }
+            $rules = array_merge($rules, $this->genrateFieldsRules());
         }
 
         return $rules;
     }
 
     public function withValidator($validator) {
-       /*  $validator->after(function ($validator) {
-            dd($validator->errors());
-        }); */
+        $validator->after(function ($validator) {
+            //dd($this->request);
+            //session()->flash('categories_pages', $this->creategories_pages);
+            //dd(Session::all());
+        });
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge(['global' => $this->has('global')]);
     }
 }
