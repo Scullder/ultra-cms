@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
 @section('body')
-    <x-container>
+    <x-container class="mt-4">
         <button type="submit" form="constructor-form" class="font-semibold text-sm ml-auto block py-4 px-6 bg-white rounded text-center shadow cursor-pointer hover:scale-95">
             СОХРАНИТЬ
         </button>
     </x-container>
-    <x-container class="p-6 bg-white rounded shadow-md">
-        <form method="post" action="{{ route('components.update', ['component' => $cmpnt]) }}" id="constructor-form">
+    <form method="post" action="{{ route('components.update', ['component' => $cmpnt]) }}" id="constructor-form">
+        <x-container class="p-6 bg-white rounded shadow-md">
             @csrf
             @method('PUT')
 
@@ -44,29 +44,31 @@
             </x-select.select>
 
             <x-checkbox label="Глобальная привязка" name="global" checked="{{ $cmpnt->global }}"/>
-            
+            <x-checkbox label="Коллекция" name="multiple" checked="{{ $cmpnt->multiple }}"/>
+        </x-container>
+
+        <x-container>
             <x-h2>Поля компонента</x-h2>
-            <div id="component-types" class="flex flex-col gap-4">
-                @if (old('fields'))
-                    @foreach (old('fields') as $uid => $field)
-                        @include("panel/component/type/constructor/{$field['type']}", [
-                            'field' => $field,
-                            'uid' => $uid,
-                        ])
-                    @endforeach
-                @else
-                    @foreach ($cmpnt->fields as $field)
-                        @include("panel/component/type/constructor/{$field['type']}", [
-                            'field' => $field,
-                            'uid' => $field['id'],
-                        ])
-                    @endforeach
-                @endif
-            </div>
-            <x-button class="mt-4"
-                hx-get="{{ route('types.index') }}" 
-                hx-target="body" 
-                hx-swap="beforeend">Добавить поле</x-button>
-        </form>
-    </x-container>
+        </x-container>
+        <div id="component-types" class="flex flex-col gap-4">
+            {{-- @if (old('fields')) --}}
+                @foreach (old('fields', $cmpnt->fields ?? []) as $uid => $field)
+                    @include("panel/component/type/constructor/{$field['type']}", [
+                        'field' => $field,
+                        'uid' => $uid,
+                    ])
+                @endforeach
+            {{-- @else
+                @foreach ($cmpnt->fields as $field)
+                    @include("panel/component/type/constructor/{$field['type']}", [
+                        'field' => $field,
+                        'uid' => $field['id'],
+                    ])
+                @endforeach --}}
+            {{-- @endif --}}
+        </div>
+        <x-container>
+            <x-button class="mt-4" hx-get="{{ route('types.index') }}" hx-target="body" hx-swap="beforeend">Добавить поле</x-button>
+        </x-container>
+    </form>
 @endsection

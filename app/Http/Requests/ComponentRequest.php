@@ -2,21 +2,31 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ComponentRequest extends FormRequest
 {
-    private $rules = [
+    private $fieldsRules = [
         'input' => [
             'label' => 'required',
             'type' => 'required',
             'default' => 'nullable',
+            'required' => 'nullable',
+            'multiple' => 'nullable',
         ],
         'text' => [
             'label' => 'required',
             'type' => 'required',
             'default' => 'nullable',
+            'required' => 'nullable',
+            'multiple' => 'nullable',
+        ],
+        'file' => [
+            'label' => 'required',
+            'type' => 'required',
+            'default' => 'nullable',
+            'required' => 'nullable',
+            'multiple' => 'nullable',
         ],
     ];
 
@@ -29,28 +39,16 @@ class ComponentRequest extends FormRequest
     }
 
     /**
-     * Поля компонента могут быть разными, поэтому создаём правила валидации на лету для каждого поля
+     * Поля компонента могут быть разными, поэтому создаём правила валидации на лету 
+     * для каждого индекса в зависимости от типа поля
      */
-    private function generateRule($type, $index): array
-    {
-        $rules = $this->rules[$type] ?? [];
-        $rules["fields.{$index}.code"] = 'required|unique:fields,code,' . $this->fields[$index]['code'];
-
-        foreach ($rules as $key => $rule) {
-            $rules["fields.{$index}.{$key}"] = $rule;
-            unset($rules[$key]);
-        }
-
-        return $rules;
-    }
-
     private function genrateFieldsRules(): array
     {
         $rules = [];
         $codeDuplicates = [];
 
         foreach (request()->fields as $index => $field) {
-            $rule = $this->rules[$field['type']] ?? [];
+            $rule = $this->fieldsRules[$field['type']] ?? [];
 
             foreach ($rule as $key => $item) {
                 $rule["fields.{$index}.{$key}"] = $item;
@@ -85,6 +83,7 @@ class ComponentRequest extends FormRequest
             'categories' => 'nullable|array',
             'pages' => 'nullable|array',
             'global' => 'nullable',
+            'multiple' => 'nullable',
         ];
 
         if (request()->has('fields')) {
@@ -94,16 +93,24 @@ class ComponentRequest extends FormRequest
         return $rules;
     }
 
-    public function withValidator($validator) {
-        $validator->after(function ($validator) {
-            //dd($this->request);
-            //session()->flash('categories_pages', $this->creategories_pages);
-            //dd(Session::all());
-        });
-    }
-
-    protected function prepareForValidation()
+    protected function prepareForValidation(): void
     {
         $this->merge(['global' => $this->has('global')]);
+        $this->merge(['multiple' => $this->has('multiple')]);
+    }
+
+    public function validated($key = null, $default = null): array
+    {
+        $validated = parent::validated($key, $default);
+        //$validated = $this->validator->validated();
+
+        if (isset($validated['fields'])) {
+            $validated['fields'] = array_combine(
+                array_column($this->fields, 'code'), 
+                array_values($this->fields)
+            );
+        }
+
+        return $validated; 
     }
 }

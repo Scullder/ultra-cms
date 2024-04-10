@@ -20,17 +20,23 @@ use App\Services\RouteService;
 |
 */
 
-Route::redirect('/', '/components/create');
-
+// admin panel
 Route::prefix(config('route.panel_path'))->group(function () {
     Route::get('/categories/select', [CategoryController::class, 'select'])->name('categories.select');
-    Route::get('/pages/select', [PageController::class, 'select'])->name('pages.select');
-    
     Route::resource('categories', CategoryController::class);
+    
+    Route::get('/pages/select', [PageController::class, 'select'])->name('pages.select');
     Route::resource('pages', PageController::class);
+
     Route::resource('components', ComponentController::class);
+
     Route::resource('types', TypeController::class);
+
     Route::get('/render/selected', [RenderController::class, 'getSelected'])->name('render.selected');
 });
 
+// clients site
 Route::get(RouteService::buildPath(request()->getPathInfo()), DefaultController::class);
+
+Route::redirect('/', config('route.panel_path') . '/components/create');
+

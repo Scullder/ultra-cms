@@ -5,7 +5,6 @@
     'name' => '',
     'placeholder' => '',
     'id' => '',
-    'hxVals' => '',
 ])
 
 @if ($attributes['hidden'])

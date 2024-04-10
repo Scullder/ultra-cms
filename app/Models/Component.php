@@ -22,13 +22,14 @@ class Component extends Model
         'categories',
         'pages',
         'global',
-        'required',
+        'multiple',
+        'fields',
     ];
 
-    public function fields(): HasMany
+    /* public function fields(): HasMany
     {
         return $this->hasMany(Field::class);
-    }
+    } */
 
     protected function categories(): Attribute
     {
@@ -83,4 +84,29 @@ class Component extends Model
                 },
         );
     }
+
+    protected function fields(): Attribute
+    {
+        return Attribute::make(
+            get: fn($fields) => $fields,
+            set: 
+                function (array $fields) {
+                    $mutators = [
+                        'required' => fn($val) => boolval($val),
+                        'multiple' => fn($val) => boolval($val),
+                    ];
+
+                    foreach ($fields as $key => $field) {
+                        foreach ($field as $name => $val) {
+                            if (isset($mutators[$name])) {
+                                $fields[$key][$name] = call_user_func($mutators[$name], $val);
+                            }
+                        }
+                    }
+
+                    return ['fields' => $fields];
+                },
+        );
+    }
+
 }

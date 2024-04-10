@@ -27,7 +27,7 @@ class ComponentController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(ComponentRequest $request)
-    {
+    {   
         $component = Component::create($request->validated());
 
         return redirect()->route('components.edit', ['component' => $component->id]);
@@ -54,23 +54,13 @@ class ComponentController extends Controller
      */
     public function update(ComponentRequest $request, Component $component)
     {
+        $component->categories_pages = [];
+        $component->categories = [];
+        $component->pages = [];
+        $component->fields = [];
+        $component->save();
+
         $component->update($request->validated());
-        
-        $fields = [];
-        $component->fields()->delete();
-
-        foreach ($request->fields as $requestField) {
-            $field = new Field;
-            
-            foreach ($requestField as $key => $value) {
-                $field->{$key} = $value;
-            }
-
-            $field->save();
-            $fields[] = $field;
-        }
-
-        $component->fields()->saveMany($fields);
 
         return redirect()->route('components.edit', ['component' => $component->id]);
     }

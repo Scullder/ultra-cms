@@ -24,6 +24,8 @@ class PageRequest extends FormRequest
         return [
             'name' => 'required',
             'slug' => 'required',
+            'categories' => 'nullable',
+            'components' => 'nullable',
         ];
     }
 }
