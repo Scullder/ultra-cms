@@ -34,36 +34,38 @@ class Page extends Model
         );
     }
 
-    /**
-     * Собираем все компоненты привязанные к странице и привязываем сохранённые значеия если они есть.
-     * Если поле в элементах строк(fields) компонента имеет названеи value оно будет заменено значением.
-     */
-    public function loadComponents()
+    protected function components(): Attribute
     {
         $components = Component::where('pages', $this->id)
-            ->with('fields')
             ->get()
-            ->merge(
-                Component::where('global', true)
-                    ->with('fields')
-                    ->get()
-            );
+            ->merge(Component::where('global', true)->get())
+            ->toArray();
+            
+        return Attribute::make(
+            get: 
+                function (array|null $values) use ($components) {
+                    foreach ($components as &$component) {
+                        if (!isset($values[$component['code']])) {
+                            $values[$component['code']] = $component;
+                        }
 
+                        foreach ($component['fields'] as &$field) {
+                            if (!isset($values[$component['code']]['fields'][$field['code']]['value'])) {
+                                $values[$component['code']]['fields'][$field['code']]['value'] = null;
+                            }
 
-        foreach ($components as &$component) {
-            foreach ($component->fields as &$field) {
-                $field->value = $this->components[$component['code']][$field['code']] ?? null;
-                // if (isset($this->components[$component['code']][$field['code']]))
-            }
-            unset($field);
-        }
-        unset($component);
+                            $values[$component['code']]['fields'][$field['code']] = collect($field)
+                                ->except(['value'])
+                                ->merge($values[$component['code']]['fields'][$field['code']]);
+                        }
+                        
+                        $values[$component['code']] = collect($component)
+                            ->except(['fields'])
+                            ->merge($values[$component['code']]);
+                    }
 
-        $this->components = $components;
-
-        /* dd($components->toArray());
-        dd($this->components); */
-
-        //return $components;
+                    return $values;
+                },
+        );
     }
 }

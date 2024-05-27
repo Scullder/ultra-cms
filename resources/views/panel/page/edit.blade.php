@@ -9,7 +9,7 @@
     <form method="post" action="{{ route('pages.update', ['page' => $page->id]) }}" id="form" enctype="multipart/form-data">
         <x-container class="p-6 bg-white rounded shadow-md">
             @csrf
-            @method('PUT')            
+            @method('PUT')        
             <x-h1>Редактирование страницы</x-h1>
             <x-input label="Название страницы" value="{{ old('name', $page->name) }}" name="name"/>
             <x-input label="Slug(Seo-url)" value="{{ old('slug', $page->slug) }}" name="slug"/>

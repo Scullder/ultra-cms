@@ -21,9 +21,11 @@ class PageRequest extends FormRequest
      */
     public function rules(): array
     {
+        $page = $this->route('page');
+
         return [
             'name' => 'required',
-            'slug' => 'required',
+            'slug' => 'required|unique:pages,slug' . (($page) ? ",{$this->page->id},_id" : ''),
             'categories' => 'nullable',
             'components' => 'nullable',
         ];

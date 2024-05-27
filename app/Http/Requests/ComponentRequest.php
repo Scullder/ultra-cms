@@ -38,6 +38,8 @@ class ComponentRequest extends FormRequest
         return true;
     }
 
+    // TODO: unique field_code
+
     /**
      * Поля компонента могут быть разными, поэтому создаём правила валидации на лету 
      * для каждого индекса в зависимости от типа поля
@@ -102,7 +104,6 @@ class ComponentRequest extends FormRequest
     public function validated($key = null, $default = null): array
     {
         $validated = parent::validated($key, $default);
-        //$validated = $this->validator->validated();
 
         if (isset($validated['fields'])) {
             $validated['fields'] = array_combine(

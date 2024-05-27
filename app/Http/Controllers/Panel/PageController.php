@@ -9,6 +9,7 @@ use App\Services\UploadService;
 use Illuminate\Http\Request;
 use App\Http\Requests\PageRequest;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 class PageController extends Controller
 {
@@ -69,49 +70,54 @@ class PageController extends Controller
      */
     public function edit(Page $page)
     {
-        $page->loadComponents();
+        //dd($page->components['photos']['fields']['photo']['value']);
 
-        //dd($page);
+        //$link = Storage::url($page->components['photos']['fields']['photo']['value']);
+        //$link = asset('storage/' . $page->components['photos']['fields']['photo']['value']);
+        //dd($link);
 
-        //dd($page->components[1]->toArray());
+        //dd($page->components[0]->toArray());
 
         return view('panel/page/edit', compact(['page']));
     }
 
     /**
      * Update the specified resource in storage.
+     * 
+     * {
+     *  components:
+     *      componentCode1:
+     *          fields:
+     *              fieldCode1: 
+     *                  value: 'value'
+     *              fieldCode2: 
+     *                  value: 'value'
+     * }
+     * 
      */
-    public function update(PageRequest $request, Page $page, UploadService $uploadService)
+    public function update(PageRequest $request, Page $page)
     {
-        //dd($request->validated());
-
         $validated = $request->validated();
+        
+        //dd($validated);
 
-        foreach ($request->file('components') as $i => $component) {
-            foreach ($component as $j => $field) {
-                if ($request->file("components.{$i}.{$j}")->isValid()) {
-                    $validated['components'][$i][$j] = $field->store("/pages/{$page->id}"); 
+        // TODO: use trait or service
+        // TODO: component is Array?
+        // TODO: delete old files if null
+        foreach ($request->file('components') as $componentCode => $component) {
+            foreach ($component['fields'] as $fieldCode => $field) {
+                if ($request->file("components.{$componentCode}.fields.{$fieldCode}.value")->isValid()) {
+                    $validated['components'][$componentCode]['fields'][$fieldCode]['value'] = $field['value']->store("/pages/{$page->id}"); 
                 }
             }
         }
 
-        dd($validated);
-
         $page->update($validated);
 
-        die;
-
-        Slug::where('model_id', $page->id)
-            ->where('model', Page::class)
-            ->delete();
-
-        Slug::create([
-            'slug' => $request->slug,
-            'model_id' => $page->id,
-            'model' => Page::class,
-            'prefix' => '',
-            'postfix' => '',
-        ]);
+        Slug::updateOrCreate(
+            ['model_id' => $page->id, 'model' => Page::class],
+            ['slug' => $request->slug, 'prefix' => '', 'postfix' => '']
+        );
 
         return redirect()->back();
     }

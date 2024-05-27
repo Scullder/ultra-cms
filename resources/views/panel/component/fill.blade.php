@@ -1,8 +1,8 @@
 <x-container class="p-6 bg-white rounded shadow-md">
-    <x-h3>{{ $cmpnt->name }}</x-h3>
+    <x-h3>{{ $cmpnt['name'] }}</x-h3>
     
-    @foreach ($cmpnt->fields as $field)
-        @include('panel/types/' . $field->type, [
+    @foreach ($cmpnt['fields'] as $field)
+        @include('panel/types/' . $field['type'], [
             'cmpnt' => $cmpnt,
             'field' => $field,
         ])
